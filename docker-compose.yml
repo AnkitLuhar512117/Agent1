@@ -1,0 +1,59 @@
+services:
+  weather:
+    build: ./servers/weather
+    environment:
+      - WEATHER_PORT=3001
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
+      - REDIS_URL=${REDIS_URL}
+      - REDIS_USERNAME=${REDIS_USERNAME}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+    ports:
+      - "3001:3001"
+    networks:
+      - mcp-network
+
+  math:
+    build: ./servers/math
+    environment:
+      - MATH_PORT=3002
+    ports:
+      - "3002:3002"
+    networks:
+      - mcp-network
+
+  orchestrator:
+    build: ./orchestrator
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ORCHESTRATOR_PORT=8080
+      - WEATHER_URL=http://weather:3001
+      - MATH_URL=http://math:3002
+      - REDIS_URL=${REDIS_URL}
+      - REDIS_USERNAME=${REDIS_USERNAME}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - weather
+      - math
+    networks:
+      - mcp-network
+
+  nginx:
+    image: nginx:stable
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - orchestrator
+    networks:
+      - mcp-network
+
+networks:
+  mcp-network:
+    driver: bridge
