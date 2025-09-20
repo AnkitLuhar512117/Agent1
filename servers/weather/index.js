@@ -9,7 +9,7 @@ async function start() {
   app.use(express.json());
   app.use(cors());
 
-  const PORT = Number(process.env.WEATHER_PORT);
+  const PORT = Number(process.env.WEATHER_PORT || 3001);
   const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 
   // Redis setup (optional)

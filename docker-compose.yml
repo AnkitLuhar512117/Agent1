@@ -28,8 +28,8 @@ services:
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ORCHESTRATOR_PORT=8080
-      - WEATHER_URL=http://weather:3001
-      - MATH_URL=http://math:3002
+      - WEATHER_URL=${WEATHER_URL}
+      - MATH_URL=${MATH_URL}
       - REDIS_URL=${REDIS_URL}
       - REDIS_USERNAME=${REDIS_USERNAME}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
