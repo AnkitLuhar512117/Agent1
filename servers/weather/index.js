@@ -12,7 +12,7 @@ async function start() {
   const PORT = Number(process.env.WEATHER_PORT || 3001);
   const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 
-  // Redis setup (optional)
+  // Redis
   let redis = null;
   let redisConnected = false;
   try {
@@ -33,7 +33,7 @@ async function start() {
     console.warn("⚠️ Weather: Redis not available, continuing without cache");
   }
 
-  // --- SSE support ---
+  //SSE
   const sseClients = new Set();
   app.get("/sse", (req, res) => {
     res.writeHead(200, {
@@ -55,7 +55,6 @@ async function start() {
     }
   }
 
-  // --- Helpers ---
   async function incrHit(key) {
     if (!redisConnected) return 1;
     try {
@@ -68,7 +67,6 @@ async function start() {
     }
   }
 
-  // --- Main endpoint ---
   app.post("/call/get_weather", async (req, res) => {
     const city = req.body?.args?.city;
     if (!city) return res.status(400).json({ error: "city required" });
@@ -76,7 +74,6 @@ async function start() {
     const key = `weather:${city.toLowerCase()}`;
 
     try {
-      // cache check
       if (redisConnected) {
         const cached = await redis.get(key);
         if (cached) {
@@ -86,10 +83,8 @@ async function start() {
         }
       }
 
-      // track usage
       const hits = await incrHit(key);
 
-      // mock fallback if no API key
       if (!WEATHER_API_KEY) {
         const mock = {
           city,
@@ -109,7 +104,6 @@ async function start() {
         return res.json(mock);
       }
 
-      // --- real API ---
       const geoUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(
         city
       )}&limit=1&appid=${WEATHER_API_KEY}`;
@@ -154,7 +148,6 @@ async function start() {
     }
   });
 
-  // Health check
   app.get("/healthz", (_, res) =>
     res.json({ status: "ok", redis: redisConnected })
   );

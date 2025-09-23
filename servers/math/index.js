@@ -10,7 +10,7 @@ async function start() {
 
   const PORT = Number(process.env.MATH_PORT || 3002);
 
-  //SSE setup
+  //SSE
   const sseClients = new Set();
   app.get("/sse", (req, res) => {
     res.writeHead(200, {
@@ -35,7 +35,6 @@ async function start() {
     }
   }
 
-  // math endpoint
   app.post("/call/calculate", (req, res) => {
     const expr = req.body?.args?.expression;
     if (!expr) return res.status(400).json({ error: "expression required" });
@@ -53,7 +52,6 @@ async function start() {
     }
   });
 
-  // healthcheck
   app.get("/healthz", (_, res) => res.json({ status: "ok" }));
 
   app.listen(PORT, () => console.log(`🧮 Math server listening on ${PORT}`));
